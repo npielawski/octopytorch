@@ -42,21 +42,21 @@ You can try the model in Python with:
 from functools import partial
 import torch
 from torch import nn
-from octopytorch import DenseUNet, DEFAULT_MODULE_BANK, ModuleName
+from octopytorch as octo
 
-module_bank = DEFAULT_MODULE_BANK.copy()
+module_bank = octo.DEFAULT_MODULE_BANK.copy()
 # Dropout
-module_bank[ModuleName.DROPOUT] = partial(nn.Dropout2d, p=0.2, inplace=True)
+module_bank[octo.ModuleType.DROPOUT] = partial(nn.Dropout2d, p=0.2, inplace=True)
 # Every activation in the model is going to be a GELU (Gaussian Error Linear 
 # Units function). GELU(x) = x * Φ(x)
 # See: https://pytorch.org/docs/stable/generated/torch.nn.GELU.html
-module_bank[ModuleName.ACTIVATION] = nn.GELU
+module_bank[octo.ModuleType.ACTIVATION] = nn.GELU
 # Example for segmentation:
-module_bank[ModuleName.ACTIVATION_FINAL] = partial(nn.LogSoftmax, dim=1)
+module_bank[octo.ModuleType.ACTIVATION_FINAL] = partial(nn.LogSoftmax, dim=1)
 # Example for regression (default):
-#module_bank[ModuleName.ACTIVATION_FINAL] = nn.Identity
+#module_bank[octo.ModuleType.ACTIVATION_FINAL] = nn.Identity
 
-model = Tiramisu(
+model = octo.models.Tiramisu(
     in_channels = 3,          # RGB images
     out_channels = 5,         # 5-channel output (5 classes)
     init_conv_filters = 48,   # Number of channels outputted by the 1st convolution

@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="octopytorch",
-    version="0.1",
+    version="0.3",
     description="Segmentation Networks without a Backbone",
     long_description=long_description,
     long_description_content_type="text/markdown",

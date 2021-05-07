@@ -11,9 +11,7 @@ TODO:
     * Add a default bank and make NN work with 3-D data.
 """
 from collections.abc import Callable
-from enum import Enum, auto
-from functools import partial
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple, Union
 
 # Deep Learning imports
 import torch
@@ -22,67 +20,7 @@ import torch.utils.checkpoint as cp
 
 # Local imports
 from .model import BaseModel
-
-
-class ModuleName(Enum):
-    """Module names that define which layers to use in the Tiramisu model."""
-
-    CONV = auto()  # Convolution operations
-    CONV_INIT = auto()  # Initial (1st) conv. operation. Kernel size must be provided.
-    CONV_FINAL = auto()  # Final convolution. 1x1 kernel and reduce output to C classes.
-    BATCHNORM = auto()  # Batch normalization
-    POOLING = auto()  # Pooling operation (must reduce input size by a factor of two)
-    # Note: if the size is odd, round *up* to the closest integer.
-    DROPOUT = auto()  # Dropout
-    UPSAMPLE = auto()  # Upsampling operation (must be by a factor of two)
-    ACTIVATION = auto()  # Activation function to use everywhere
-    ACTIVATION_FINAL = auto()  # Act. function at the last layer (e.g.softmax)
-
-
-ModuleBankType = Dict[ModuleName, Callable[..., nn.Module]]
-
-UPSAMPLE2D_NEAREST = lambda in_channels, out_channels, module_bank: nn.Sequential(
-    nn.UpsamplingNearest2d(scale_factor=2),
-    module_bank[ModuleName.CONV](
-        in_channels=in_channels,
-        out_channels=out_channels,
-        kernel_size=3,
-        padding=1,
-    ),
-    module_bank[ModuleName.ACTIVATION](),
-)
-# Pixel shuffle see: https://arxiv.org/abs/1609.05158
-UPSAMPLE2D_PIXELSHUFFLE = lambda in_channels, out_channels, module_bank: nn.Sequential(
-    module_bank[ModuleName.CONV](
-        in_channels=in_channels,
-        out_channels=4 * out_channels,
-        kernel_size=3,
-        padding=1,
-    ),
-    module_bank[ModuleName.ACTIVATION](),
-    nn.PixelShuffle(2),
-)
-UPSAMPLE2D_TRANPOSE = lambda in_channels, out_channels, module_bank: nn.Sequential(
-    nn.ConvTranspose2d(
-        in_channels=in_channels,
-        out_channels=out_channels,
-        kernel_size=3,
-        stride=2,
-        padding=0,
-    ),
-    module_bank[ModuleName.ACTIVATION](),
-)
-DEFAULT_MODULE_BANK: ModuleBankType = {
-    ModuleName.CONV: nn.Conv2d,
-    ModuleName.CONV_INIT: partial(nn.Conv2d, kernel_size=3, padding=1),
-    ModuleName.CONV_FINAL: nn.Conv2d,
-    ModuleName.BATCHNORM: nn.BatchNorm2d,
-    ModuleName.POOLING: partial(nn.MaxPool2d, kernel_size=2, ceil_mode=True),
-    ModuleName.DROPOUT: partial(nn.Dropout2d, p=0.2, inplace=True),
-    ModuleName.UPSAMPLE: UPSAMPLE2D_NEAREST,
-    ModuleName.ACTIVATION: partial(nn.ReLU, inplace=True),
-    ModuleName.ACTIVATION_FINAL: nn.Identity,
-}
+from .modulebank import ModuleType, ModuleBankType, DEFAULT_MODULE_BANK
 
 
 def _denselayer_factory(
@@ -128,12 +66,12 @@ class DenseLayer(nn.Module):
         # Standard Tiramisu Layer (BN-ReLU-Conv-DropOut)
         self.add_module(
             "batchnorm",
-            module_bank[ModuleName.BATCHNORM](num_features=in_channels),
+            module_bank[ModuleType.BATCHNORM](num_features=in_channels),
         )
-        self.add_module("relu", module_bank[ModuleName.ACTIVATION]())
+        self.add_module("relu", module_bank[ModuleType.ACTIVATION]())
         self.add_module(
             "conv",
-            module_bank[ModuleName.CONV](
+            module_bank[ModuleType.CONV](
                 in_channels=in_channels,
                 out_channels=out_channels,
                 kernel_size=3,
@@ -141,7 +79,7 @@ class DenseLayer(nn.Module):
                 padding=1,
             ),
         )
-        self.add_module("dropout", module_bank[ModuleName.DROPOUT]())
+        self.add_module("dropout", module_bank[ModuleType.DROPOUT]())
 
     @staticmethod
     def any_requires_grad(x: List[torch.Tensor]) -> bool:
@@ -240,11 +178,11 @@ class TransitionDown(nn.Sequential):
             module_bank (ModuleBankType): The layers to use for common operations.
         """
         super().__init__()
-        self.add_module("batchnorm", module_bank[ModuleName.BATCHNORM](in_channels))
-        self.add_module("relu", module_bank[ModuleName.ACTIVATION]())
+        self.add_module("batchnorm", module_bank[ModuleType.BATCHNORM](in_channels))
+        self.add_module("relu", module_bank[ModuleType.ACTIVATION]())
         self.add_module(
             "conv",
-            module_bank[ModuleName.CONV](
+            module_bank[ModuleType.CONV](
                 in_channels=in_channels,
                 out_channels=out_channels,
                 kernel_size=1,
@@ -252,8 +190,8 @@ class TransitionDown(nn.Sequential):
                 padding=0,
             ),
         )
-        self.add_module("dropout", module_bank[ModuleName.DROPOUT]())
-        self.add_module("pool", module_bank[ModuleName.POOLING]())
+        self.add_module("dropout", module_bank[ModuleType.DROPOUT]())
+        self.add_module("pool", module_bank[ModuleType.POOLING]())
 
 
 def center_crop(layer: torch.Tensor, max_height: int, max_width: int) -> torch.Tensor:
@@ -290,7 +228,7 @@ class TransitionUp(nn.Module):
             module_bank (ModuleBankType): The layers to use for common operations.
         """
         super().__init__()
-        self.upsampling_layer = module_bank[ModuleName.UPSAMPLE](
+        self.upsampling_layer = module_bank[ModuleType.UPSAMPLE](
             in_channels, out_channels, module_bank
         )
 
@@ -383,7 +321,7 @@ class Tiramisu(BaseModel):
         skip_connections: List[int] = []
 
         # First layer
-        self.conv_init = self.module_bank[ModuleName.CONV_INIT](
+        self.conv_init = self.module_bank[ModuleType.CONV_INIT](
             in_channels=in_channels, out_channels=init_conv_filters
         )
 
@@ -497,14 +435,14 @@ class Tiramisu(BaseModel):
 
         # Last layer
         if include_top:
-            self.conv_final = self.module_bank[ModuleName.CONV_FINAL](
+            self.conv_final = self.module_bank[ModuleType.CONV_FINAL](
                 in_channels=channels_count,
                 out_channels=out_channels,
                 kernel_size=1,
                 stride=1,
                 padding=0,
             )
-            self.activation_final = self.module_bank[ModuleName.ACTIVATION_FINAL]()
+            self.activation_final = self.module_bank[ModuleType.ACTIVATION_FINAL]()
 
     def forward(self, inp: torch.Tensor) -> torch.Tensor:
         """Computes the forward pass of the Tiramisu network."""
