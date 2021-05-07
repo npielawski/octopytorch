@@ -302,8 +302,8 @@ class TransitionUp(nn.Module):
         return out
 
 
-class DenseUNet(BaseModel):
-    """DensUNet
+class Tiramisu(BaseModel):
+    """Tiramisu architecture
     Paper: The One Hundred Layers Tiramisu: Fully Convolutional DenseNets for
     Semantic Segmentation
     URL: https://arxiv.org/pdf/1611.09326.pdf

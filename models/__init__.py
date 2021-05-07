@@ -1,5 +1,5 @@
 from .model import BaseModel
-from .tiramisu import DenseUNet, DenseBlock, DenseLayer
+from .tiramisu import Tiramisu, DenseBlock, DenseLayer
 from .tiramisu import (
     ModuleName,
     DEFAULT_MODULE_BANK,
@@ -10,7 +10,7 @@ from .tiramisu import (
 
 __all__ = [
     "BaseModel",
-    "DenseUNet",
+    "Tiramisu",
     "DenseBlock",
     "DenseLayer",
     "ModuleName",

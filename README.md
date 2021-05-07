@@ -1,31 +1,39 @@
 [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/) 
-[![DOI](https://zenodo.org/badge/242668685.svg)](https://zenodo.org/badge/latestdoi/242668685) 
 ![GitHub](https://img.shields.io/github/license/npielawski/pytorch_tiramisu)
 
-<p align="center">
-  <img src="resources/tiramisu64_hd.png" style="image-rendering: pixelated;" width=128 />
-</p>
+# 🔥 OctoPyTorch: Segmentation Neural Networks 🔥
 
-# 🔥 Better Tiramisu for PyTorch 🔥
+## No backbones needed, with a focus on medical images
 
-Implementation of the Tiramisu Neural network for PyTorch with new features such as:
+Implementation of the segmentation neural networks for PyTorch with new features such as:
 
+* 🐟 No backbones, the architectures remain simple to understand and train.
 * 💾 Memory-efficient version (trade-off between memory and speed).
 * 🖼 Works with any input size (not only powers of 2 anymore).
 * 👁 Different types of upsampling (transposed convolution, upsampling and pixel shuffle).
 * 🏊‍♀️ Different types of pooling (max-pooling, avg-pooling, blur-pooling).
-* 🏗 The depth and width of the Tiramisu is fully configurable.
+* 🏗 The depth and width of the models are fully configurable.
 * 🔬 Early-transition can be enabled when the input images are big.
 * 👸🏼 The activation functions of all layers can be modified to something trendier.
+
+For the Tiramisu architecture:
 * 🎉 Won a competition (Adipocyte Cell Imaging Challenge)! [Preprint of the winners is here](https://www.biorxiv.org/content/10.1101/2021.01.18.427121v3).
 * 🎉 Was used in a NeurIPS paper! [Abstract and paper are here](https://proceedings.neurips.cc//paper/2020/hash/d6428eecbe0f7dff83fc607c5044b2b9-Abstract.html).
+
+## Roadmap
+
+Support for the following neural networks:
+- [ ] [U-Net](https://link.springer.com/chapter/10.1007%2F978-3-319-24574-4_28) [[ArXiv](https://arxiv.org/abs/1505.04597)]
+- [x] [Tiramisu](https://ieeexplore.ieee.org/document/8014890) [[ArXiv](https://arxiv.org/abs/1611.09326)]
+- [ ] [U²-Net](https://www.sciencedirect.com/science/article/abs/pii/S0031320320302077) [[ArXiv](https://arxiv.org/abs/2005.09007)]
+- [ ] [PraNet](https://www.springerprofessional.de/en/pranet-parallel-reverse-attention-network-for-polyp-segmentation/18443486) [[ArXiv](https://arxiv.org/abs/2006.11392)]
 
 ## Getting Started
 
 The package can be installed from the repository with:
 
 ```console
-> pip3 install git+https://github.com/npielawski/pytorch_tiramisu
+> pip3 install octopytorch
 ```
 
 You can try the model in Python with:
@@ -34,7 +42,7 @@ You can try the model in Python with:
 from functools import partial
 import torch
 from torch import nn
-from tiramisu import DenseUNet, DEFAULT_MODULE_BANK, ModuleName
+from octopytorch import DenseUNet, DEFAULT_MODULE_BANK, ModuleName
 
 module_bank = DEFAULT_MODULE_BANK.copy()
 # Dropout
@@ -48,7 +56,7 @@ module_bank[ModuleName.ACTIVATION_FINAL] = partial(nn.LogSoftmax, dim=1)
 # Example for regression (default):
 #module_bank[ModuleName.ACTIVATION_FINAL] = nn.Identity
 
-model = DenseUNet(
+model = Tiramisu(
     in_channels = 3,          # RGB images
     out_channels = 5,         # 5-channel output (5 classes)
     init_conv_filters = 48,   # Number of channels outputted by the 1st convolution
@@ -152,7 +160,7 @@ instead of an edge.
 
 ## Contributing
 
-See also the list of [contributors](https://github.com/npielawski/torch_tiramisu/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/npielawski/octopytorch/contributors) who participated in this project.
 For contributing, make sure the code passes the checks of [Pylama](https://github.com/klen/pylama), [Bandit](https://github.com/PyCQA/bandit) and [Mypy](https://github.com/python/mypy).
 Additionally, the code is formatted with [Black](https://github.com/psf/black).
 
@@ -164,12 +172,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 Many thanks to [@RaphaelaHeil](https://github.com/RaphaelaHeil) for her much
 appreciated advices on best practices.
-
-Acknowledging this repository and citing it is appreciated. The static record is
-available on Zenodo: [https://zenodo.org/record/3685491](https://zenodo.org/record/3685491)
-
-Cite as:
-
-```MLA
-Nicolas Pielawski. (2020, February 24). npielawski/pytorch_tiramisu: Better Tiramisu 1.0 (Version 1.0). Zenodo. http://doi.org/10.5281/zenodo.3685491
-```

@@ -5,9 +5,9 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="tiramisu",
-    version="1.1",
-    description="Better Tiramisu Neural Network",
+    name="octopytorch",
+    version="0.1",
+    description="Segmentation Networks without a Backbone",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Nicolas Pielawski",
