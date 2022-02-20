@@ -10,7 +10,12 @@ TODO:
       powers of 2).
     * Add a default bank and make NN work with 3-D data.
 """
-from collections.abc import Callable
+import sys
+
+if sys.version_info < (3, 9, 0):
+    from typing import Callable
+else:
+    from collections.abc import Callable
 from typing import List, Tuple, Union
 
 # Deep Learning imports

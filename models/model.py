@@ -4,7 +4,12 @@ functionalities, such as summaries (like with Keras) and easier initialization.
 from __future__ import annotations
 
 from abc import ABC
-from collections.abc import Callable
+import sys
+
+if sys.version_info < (3, 9, 0):
+    from typing import Callable
+else:
+    from collections.abc import Callable
 import os
 from typing import BinaryIO, IO, Tuple, Union
 
