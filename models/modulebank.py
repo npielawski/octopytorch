@@ -1,6 +1,11 @@
 from enum import Enum, auto
 from functools import partial
-from collections.abc import Callable
+import sys
+
+if sys.version_info < (3, 9, 0):
+    from typing import Callable
+else:
+    from collections.abc import Callable
 from typing import Dict
 from torch import nn
 
