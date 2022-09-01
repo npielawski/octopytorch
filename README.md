@@ -1,4 +1,4 @@
-[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/) 
+[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
 ![GitHub](https://img.shields.io/github/license/npielawski/pytorch_tiramisu)
 
 # 🔥 OctoPyTorch: Segmentation Neural Networks 🔥
@@ -17,16 +17,18 @@ Implementation of the segmentation neural networks for PyTorch with new features
 * 👸🏼 The activation functions of all layers can be modified to something trendier.
 
 For the Tiramisu architecture:
+
 * 🎉 Won a competition (Adipocyte Cell Imaging Challenge)! [Preprint of the winners is here](https://www.biorxiv.org/content/10.1101/2021.01.18.427121v3).
 * 🎉 Was used in a NeurIPS paper! [Abstract and paper are here](https://proceedings.neurips.cc//paper/2020/hash/d6428eecbe0f7dff83fc607c5044b2b9-Abstract.html).
 
 ## Roadmap
 
 Support for the following neural networks:
-- [ ] [U-Net](https://link.springer.com/chapter/10.1007%2F978-3-319-24574-4_28) [[ArXiv](https://arxiv.org/abs/1505.04597)]
-- [x] [Tiramisu](https://ieeexplore.ieee.org/document/8014890) [[ArXiv](https://arxiv.org/abs/1611.09326)]
-- [ ] [U²-Net](https://www.sciencedirect.com/science/article/abs/pii/S0031320320302077) [[ArXiv](https://arxiv.org/abs/2005.09007)]
-- [ ] [PraNet](https://www.springerprofessional.de/en/pranet-parallel-reverse-attention-network-for-polyp-segmentation/18443486) [[ArXiv](https://arxiv.org/abs/2006.11392)]
+
+* [ ] [U-Net](https://link.springer.com/chapter/10.1007%2F978-3-319-24574-4_28) [[ArXiv](https://arxiv.org/abs/1505.04597)]
+* [x] [Tiramisu](https://ieeexplore.ieee.org/document/8014890) [[ArXiv](https://arxiv.org/abs/1611.09326)]
+* [ ] [U²-Net](https://www.sciencedirect.com/science/article/abs/pii/S0031320320302077) [[ArXiv](https://arxiv.org/abs/2005.09007)]
+* [ ] [PraNet](https://www.springerprofessional.de/en/pranet-parallel-reverse-attention-network-for-polyp-segmentation/18443486) [[ArXiv](https://arxiv.org/abs/2006.11392)]
 
 ## Getting Started
 
@@ -42,7 +44,7 @@ You can try the model in Python with:
 from functools import partial
 import torch
 from torch import nn
-from octopytorch as octo
+import octopytorch as octo
 
 module_bank = octo.DEFAULT_MODULE_BANK.copy()
 # Dropout
